@@ -1,7 +1,6 @@
 """
 1. given array of integers find two that add up to 2020 and return their product
 """
-import numpy as np
 from tools.read_data import read_ints
 
 
@@ -11,8 +10,7 @@ def find_sum_in_list(numbers, goal):
 
 def find_three(numbers, goal):
     for i in range(numbers.size - 2):
-        temp_goal = goal - numbers[i]
-        other_two = find_sum_in_list(numbers[i+1:], temp_goal)
+        other_two = find_sum_in_list(numbers[i+1:], goal - numbers[i])
         if other_two:
             return numbers[i]*other_two[0]*other_two[1]
 
