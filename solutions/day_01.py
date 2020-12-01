@@ -6,10 +6,7 @@ from tools.read_data import read_ints
 
 
 def find_sum_in_list(numbers, goal):
-    numbers_sorted = np.sort(numbers)
-    diffs = goal - numbers_sorted
-    intersection = set(numbers_sorted) & set(diffs)
-    return list(intersection)
+    return list(set(numbers) & set(goal - numbers))
 
 
 def find_three(numbers, goal):
