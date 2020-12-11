@@ -39,34 +39,39 @@ def calc_neighbors(board):
     return neighbors_board
 
 
+def first_seen(arr):
+    valid = arr[arr >= 0]
+    if valid.size:
+        return valid[0]
+    return 0
+
+
+def see_occupied(board, i, j):
+    occ = 0
+    above = board[:i, j]
+    occ += first_seen(above[::-1])
+    below = board[i+1:, j]
+    occ += first_seen(below)
+    left = board[i, :j]
+    occ += first_seen(left[::-1])
+    right = board[i, j+1:]
+    occ += first_seen(right)
+    bottom_right = np.diagonal(board[i+1:, j+1:])
+    occ += first_seen(bottom_right)
+    top_left = np.diagonal(board[:i, :j], offset=j-i)
+    occ += first_seen(top_left[::-1])
+    top_right = np.diagonal(np.flipud(board[:i, j+1:]))
+    occ += first_seen(top_right)
+    bottom_left = np.diagonal(np.fliplr(board[i+1:, :j]))
+    occ += first_seen(bottom_left)
+    return occ
+
+
 def calc_directions(board):
     neighbors_board = np.zeros(board.shape, dtype=int)
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
-            above = board[:i, j]
-            if above[above >= 0].size:
-                neighbors_board[i, j] += above[above >= 0][-1]
-            below = board[i+1:, j]
-            if below[below >=0].size:
-                neighbors_board[i, j] += below[below >= 0][0]
-            left = board[i, :j]
-            if left[left >= 0].size:
-                neighbors_board[i, j] += left[left >= 0][-1]
-            right = board[i, j+1:]
-            if right[right >= 0].size:
-                neighbors_board[i, j] += right[right >= 0][0]
-            bottom_right = np.diagonal(board[i+1:, j+1:])
-            if bottom_right[bottom_right >= 0].size:
-                neighbors_board[i, j] += bottom_right[bottom_right >= 0][0]
-            top_left = np.diagonal(board[:i, :j], offset=j-i)
-            if top_left[top_left >= 0].size:
-                neighbors_board[i, j] += top_left[top_left >= 0][-1]
-            top_right = np.diagonal(board[:i, j+1:][-1::-1])
-            if top_right[top_right >= 0].size:
-                neighbors_board[i, j] += top_right[top_right >= 0][0]
-            bottom_left = np.diagonal(board[i+1:, :j][:, -1::-1])
-            if bottom_left[bottom_left >= 0].size:
-                neighbors_board[i, j] += bottom_left[bottom_left >= 0][-1]
+            neighbors_board[i, j] = see_occupied(board, i, j)
     return neighbors_board
 
 
@@ -81,28 +86,24 @@ def update_board(board):
 def update_board_directions(board):
     new_board = np.copy(board)
     neighbors_board = calc_directions(board)
-    print("neighbors")
-    print(neighbors_board)
-    print()
     new_board[(board == 0) & (neighbors_board == 0)] = 1
     new_board[(board == 1) & (neighbors_board >= 5)] = 0
     return new_board
 
 
-# next_board = read_input("../data/input_11.txt")
-# cur_board = np.zeros(next_board.shape, dtype=int)
-# while not np.array_equal(cur_board, next_board):
-#     cur_board = np.copy(next_board)
-#     next_board = update_board(cur_board)
-# print(next_board[next_board > 0].sum())
-
-next_board = read_input("../data/input_11_test.txt")
-# print(update_board_directions(next_board))
-# print(update_board_directions(update_board_directions(next_board)))
+next_board = read_input("../data/input_11.txt")
 cur_board = np.zeros(next_board.shape, dtype=int)
 while not np.array_equal(cur_board, next_board):
     cur_board = np.copy(next_board)
+    next_board = update_board(cur_board)
+print(next_board[next_board > 0].sum())
+
+next_board = read_input("../data/input_11.txt")
+cur_board = np.zeros(next_board.shape, dtype=int)
+c = 0
+while not np.array_equal(cur_board, next_board):
+    cur_board = np.copy(next_board)
     next_board = update_board_directions(cur_board)
-    print(cur_board)
-    print()
+    c += 1
+    print(c)
 print(next_board[next_board > 0].sum())
