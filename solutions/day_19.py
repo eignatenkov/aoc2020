@@ -27,7 +27,7 @@ def is_parsed(val):
 def merge_patterns(l_l_patterns):
     result = []
     for l_p in l_l_patterns:
-        result += (prod_patterns(*l_p))
+        result += (prod_patterns(*l_p)) if len(l_p) > 1 else l_p[0]
     return result
 
 
@@ -40,14 +40,38 @@ def resolve_input(val, rules_dict):
 
 
 rules, tests = parse_input("../data/input_19.txt")
-print(rules)
-
 while not is_parsed(rules[0]):
     for k in rules.keys():
         if not is_parsed(rules[k]) and is_input_parsed(rules[k], rules):
-            print(rules[k])
             rules[k] = merge_patterns(resolve_input(rules[k], rules))
-            print(k, rules[k])
             break
 
-print(rules[0])
+print(len(set(tests) & set(rules[0])))
+
+
+def check_test(t, r_x, r_y):
+    start =''
+    for x in r_x:
+        if t.startswith(x):
+            start = x
+            break
+    if not start:
+        return False
+    while t.startswith(start):
+        t = t[8:]
+    end = ''
+    for y in r_y:
+        if t.startswith(y):
+            end = y
+            break
+    if not end:
+        return False
+    while t:
+        if t.startswith(end):
+            t = t[8:]
+        else:
+            return False
+    return True
+
+print(sum(check_test(t, rules[42], rules[31]) for t in tests))
+
