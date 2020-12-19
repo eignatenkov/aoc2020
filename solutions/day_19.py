@@ -50,27 +50,19 @@ print(len(set(tests) & set(rules[0])))
 
 
 def check_test(t, r_x, r_y):
-    start =''
-    for x in r_x:
-        if t.startswith(x):
-            start = x
-            break
-    if not start:
+    l = len(r_x[0])
+    x_c = 0
+    while t[:l] in r_x:
+        t = t[l:]
+        x_c += 1
+    y_c = 0
+    while t[:l] in r_y:
+        t = t[l:]
+        y_c += 1
+    if y_c == 0 or x_c <= y_c:
         return False
-    while t.startswith(start):
-        t = t[8:]
-    end = ''
-    for y in r_y:
-        if t.startswith(y):
-            end = y
-            break
-    if not end:
+    if len(t) > 0:
         return False
-    while t:
-        if t.startswith(end):
-            t = t[8:]
-        else:
-            return False
     return True
 
 print(sum(check_test(t, rules[42], rules[31]) for t in tests))
