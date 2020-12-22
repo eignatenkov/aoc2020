@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def read_input(filename):
     a = []
     b = []
@@ -14,9 +17,8 @@ def read_input(filename):
 
 
 def play_round(a, b, recursive=False):
-    # print(a, b)
     if recursive and a[0] <= len(a) - 1 and b[0] <= len(b) - 1:
-        sub_a, sub_b = play_game(a[1:], b[1:], recursive)
+        sub_a, sub_b = play_game(a[1:a[0] + 1], b[1:b[0]+1], recursive)
         if len(sub_a) == 0:
             return a[1:], b[1:] + [b[0], a[0]]
         else:
@@ -39,10 +41,7 @@ def play_game(a, b, recursive=False):
 
 a, b = read_input("../data/input_22.txt")
 usual_a, usual_b = play_game(a, b)
-
-
-import numpy as np
 print((np.array(usual_a) * np.arange(len(usual_a), 0, -1)).sum(), (np.array(usual_b) * np.arange(len(usual_b), 0, -1)).sum())
-a, b = read_input("../data/input_22.txt")
+
 rec_a, rec_b = play_game(a, b, recursive=True)
-print(rec_a, rec_b)
+print((np.array(rec_a) * np.arange(len(rec_a), 0, -1)).sum(), (np.array(rec_b) * np.arange(len(rec_b), 0, -1)).sum())
