@@ -1,5 +1,6 @@
 from tqdm import trange
 
+
 def create_circle(cups):
     circle = dict()
     c_size = len(cups)
