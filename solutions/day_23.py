@@ -1,3 +1,5 @@
+from tqdm import trange
+
 def create_circle(cups):
     circle = dict()
     c_size = len(cups)
@@ -19,11 +21,10 @@ def make_move(circle, current):
             dest_cup = len(circle)
         if dest_cup not in pickup:
             break
-    temp = circle[pickup[-1]]
+    circle[current] = circle[pickup[-1]]
     circle[pickup[-1]] = circle[dest_cup]
     circle[dest_cup] = pickup[0]
-    circle[current] = temp
-    return circle, temp
+    return circle, circle[current]
 
 
 cups = list(map(int, list('598162734')))
@@ -38,7 +39,6 @@ for i in range(9):
     res.append(cur)
 print(''.join(map(str, res)))
 
-from tqdm import trange
 new_cups = list(range(1, 1000001))
 new_cups[:9] = list(map(int, list('598162734')))
 cups_circle = create_circle(new_cups)
