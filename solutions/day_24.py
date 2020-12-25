@@ -1,4 +1,3 @@
-from math import sin, cos, pi
 from collections import Counter
 
 
@@ -31,8 +30,15 @@ dir_dict = {
 
 
 def dir_to_vec(dir: str):
-    angle = pi/3*dir_dict[dir]
-    return cos(angle), sin(angle)
+    """
+    neighbors of (0,0) from east counterclockwise:
+    (1,0), (0,1), (-1,1), (-1,0), (0,-1), (1,-1)
+    x: 1,0,-1,-1,0,1
+    y: 0,1,1,0,-1,-1
+    """
+    x = [1, 0, -1, -1, 0, 1]
+    y = [0, 1, 1, 0, -1, -1]
+    return x[dir_dict[dir]], y[dir_dict[dir]]
 
 
 def walk_route(route):
@@ -57,40 +63,19 @@ def calc_neighbors(x, y):
     return result
 
 
-def round_tile(x, y, n=5):
-    return round(x, n), round(y, n)
-
-
-def count_black_neighbors(x, y, blacks_rounded):
-    result = 0
-    for n in calc_neighbors(x, y):
-        if round_tile(*n) in blacks_rounded:
-            result += 1
-    return result
+def count_black_neighbors(x, y, blacks):
+    return sum(1 for n in calc_neighbors(x, y) if n in blacks)
 
 
 def run_day(blacks):
-    all_neighbors = set()
-    round_neighbors = set()
-    all_neighbors |= blacks
-    blacks_rounded = {round_tile(*n) for n in blacks}
-    round_neighbors |= blacks_rounded
+    all_neighbors = set() | blacks
     for k in blacks:
-        neighbors_candidates = set(calc_neighbors(*k))
-        for nc in neighbors_candidates:
-            rnc = round_tile(*nc)
-            if rnc not in round_neighbors:
-                round_neighbors.add(rnc)
-                all_neighbors.add(nc)
+        all_neighbors |= set(calc_neighbors(*k))
     result = set()
-    result_round = set()
     for t in all_neighbors:
-        t_round = round_tile(*t)
-        n_neighbors = count_black_neighbors(*t, blacks_rounded)
-        if t_round not in blacks_rounded and n_neighbors == 2 or t_round in blacks_rounded and 1 <= n_neighbors <= 2:
-            if t_round not in result_round:
-                result.add(t)
-                result_round.add(t_round)
+        n_neighbors = count_black_neighbors(*t, blacks)
+        if t not in blacks and n_neighbors == 2 or t in blacks and 1 <= n_neighbors <= 2:
+            result.add(t)
     return result
 
 
@@ -102,9 +87,7 @@ if __name__ == "__main__":
 
     tile_count = Counter()
     for route in tile_list:
-        rp = walk_route(route)
-        tile_count[(round(rp[0], 10), round(rp[1], 10))] += 1
-
+        tile_count[walk_route(route)] += 1
     print(count_odd(tile_count.values()))
 
     blacks = set(k for k, v in tile_count.items() if v % 2)
