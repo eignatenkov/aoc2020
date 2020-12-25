@@ -1,12 +1,8 @@
 from collections import Counter
+DIR_DICT = {'e': 0, 'ne': 1, 'nw': 2, 'w': 3, 'sw': 4, 'se': 5}
 
 
 def parse_line(line):
-    """
-    seseesenweseseseswnwnwseswneswsesenwse to list of commands
-    :param line:
-    :return:
-    """
     result = []
     cur_i = 0
     while cur_i < len(line):
@@ -19,26 +15,14 @@ def parse_line(line):
     return result
 
 
-dir_dict = {
-    'e': 0,
-    'ne': 1,
-    'nw': 2,
-    'w': 3,
-    'sw': 4,
-    'se': 5
-}
-
-
 def dir_to_vec(dir: str):
     """
     neighbors of (0,0) from east counterclockwise:
     (1,0), (0,1), (-1,1), (-1,0), (0,-1), (1,-1)
-    x: 1,0,-1,-1,0,1
-    y: 0,1,1,0,-1,-1
     """
     x = [1, 0, -1, -1, 0, 1]
     y = [0, 1, 1, 0, -1, -1]
-    return x[dir_dict[dir]], y[dir_dict[dir]]
+    return x[DIR_DICT[dir]], y[DIR_DICT[dir]]
 
 
 def walk_route(route):
@@ -46,34 +30,24 @@ def walk_route(route):
     y = 0
     for dir in route:
         x_add, y_add = dir_to_vec(dir)
-        x+= x_add
+        x += x_add
         y += y_add
     return x, y
 
 
-def count_odd(numbers):
-    return sum(n % 2 for n in numbers)
-
-
 def calc_neighbors(x, y):
     result = []
-    for dir in dir_dict:
+    for dir in DIR_DICT:
         x_add, y_add = dir_to_vec(dir)
         result.append((x + x_add, y + y_add))
     return result
 
 
-def count_black_neighbors(x, y, blacks):
-    return sum(1 for n in calc_neighbors(x, y) if n in blacks)
-
-
 def run_day(blacks):
-    all_neighbors = set() | blacks
-    for k in blacks:
-        all_neighbors |= set(calc_neighbors(*k))
+    all_neighbors = set.union(blacks, *(calc_neighbors(*k) for k in blacks))
     result = set()
     for t in all_neighbors:
-        n_neighbors = count_black_neighbors(*t, blacks)
+        n_neighbors = sum(1 for n in calc_neighbors(*t) if n in blacks)
         if t not in blacks and n_neighbors == 2 or t in blacks and 1 <= n_neighbors <= 2:
             result.add(t)
     return result
@@ -88,7 +62,7 @@ if __name__ == "__main__":
     tile_count = Counter()
     for route in tile_list:
         tile_count[walk_route(route)] += 1
-    print(count_odd(tile_count.values()))
+    print(sum(n % 2 for n in tile_count.values()))
 
     blacks = set(k for k, v in tile_count.items() if v % 2)
     for i in range(100):
