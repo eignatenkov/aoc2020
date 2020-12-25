@@ -1,6 +1,5 @@
 from math import sin, cos, pi
 from collections import Counter
-from tqdm import trange
 
 
 def parse_line(line):
@@ -58,24 +57,35 @@ def calc_neighbors(x, y):
     return result
 
 
+def round_tile(x, y, n=5):
+    return round(x, n), round(y, n)
+
+
 def count_black_neighbors(x, y, blacks_rounded):
     result = 0
     for n in calc_neighbors(x, y):
-        if (round(n[0], 10), round(n[1], 10)) in blacks_rounded:
+        if round_tile(*n) in blacks_rounded:
             result += 1
     return result
 
 
 def run_day(blacks):
     all_neighbors = set()
+    round_neighbors = set()
     all_neighbors |= blacks
+    blacks_rounded = {round_tile(*n) for n in blacks}
+    round_neighbors |= blacks_rounded
     for k in blacks:
-        all_neighbors |= set(calc_neighbors(*k))
+        neighbors_candidates = set(calc_neighbors(*k))
+        for nc in neighbors_candidates:
+            rnc = round_tile(*nc)
+            if rnc not in round_neighbors:
+                round_neighbors.add(rnc)
+                all_neighbors.add(nc)
     result = set()
     result_round = set()
-    blacks_rounded = {(round(n[0], 10), round(n[1], 10)) for n in blacks}
     for t in all_neighbors:
-        t_round = (round(t[0], 10), round(t[1], 10))
+        t_round = round_tile(*t)
         n_neighbors = count_black_neighbors(*t, blacks_rounded)
         if t_round not in blacks_rounded and n_neighbors == 2 or t_round in blacks_rounded and 1 <= n_neighbors <= 2:
             if t_round not in result_round:
@@ -86,7 +96,7 @@ def run_day(blacks):
 
 if __name__ == "__main__":
     tile_list = []
-    with open("../data/input_24_test.txt") as f:
+    with open("../data/input_24.txt") as f:
         for line in f:
             tile_list.append(parse_line(line.strip()))
 
@@ -98,12 +108,6 @@ if __name__ == "__main__":
     print(count_odd(tile_count.values()))
 
     blacks = set(k for k, v in tile_count.items() if v % 2)
-    # print(len(blacks))
-    # print(blacks)
-    # blacks = run_day(blacks)
-    # print(len(blacks))
-    for i in range(4):
+    for i in range(100):
         blacks = run_day(blacks)
-        print(i + 1, len(blacks))
-    print(sorted(list(blacks)))
     print(len(blacks))
